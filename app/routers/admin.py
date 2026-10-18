@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request, Form, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-
+from app.database import get_db
 from ..database import get_db
 from ..models import Film, Genre, Episode, EpisodeType, User
 from ..deps import require_admin, get_current_user
