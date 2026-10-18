@@ -1,0 +1,4 @@
+body { background: #111 !important; }
+.card { border: 1px solid #333; }
+.table-dark { --bs-table-bg: #1a1a1a; }
+code { word-break: break-all; }

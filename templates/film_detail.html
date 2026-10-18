@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ film.titre }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+  <h2>{{ film.titre }}</h2>
+  <div>
+    <a href="/admin/films/{{ film.id }}/edit" class="btn btn-outline-warning">
+      <i class="bi bi-pencil"></i> Modifier
+    </a>
+    <a href="/admin/dashboard" class="btn btn-outline-light">Retour</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <img src="{{ film.image_cover }}" class="img-fluid rounded shadow">
+  </div>
+  <div class="col-md-9">
+    <p><strong>Description :</strong> {{ film.description or "—" }}</p>
+    <p><strong>Âge :</strong> {{ film.age_min }}+
+       {% if film.annee %} | <strong>Année :</strong> {{ film.annee }}{% endif %}</p>
+    <p><strong>Genres :</strong>
+      {% for g in film.genres %}
+        <span class="badge bg-info text-dark">{{ g.nom }}</span>
+      {% endfor %}
+    </p>
+    <p><strong>Statut :</strong>
+      {% if film.status %}<span class="badge bg-success">Disponible</span>
+      {% else %}<span class="badge bg-danger">Indisponible</span>{% endif %}
+    </p>
+  </div>
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4>Vidéos ({{ film.episodes|length }})</h4>
+  <a href="/admin/films/{{ film.id }}/episodes/new" class="btn btn-warning">
+    <i class="bi bi-plus-circle"></i> Ajouter une vidéo
+  </a>
+</div>
+
+<table class="table table-dark table-hover align-middle">
+  <thead>
+    <tr>
+      <th>#</th><th>Titre</th><th>Type</th><th>Lien / ID Bunny</th>
+      <th>Durée</th><th>Ordre</th><th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for e in film.episodes|sort(attribute='ordre') %}
+    <tr>
+      <td>{{ e.id }}</td>
+      <td><strong>{{ e.titre }}</strong></td>
+      <td>
+        {% if e.type.value == "trailer" %}
+          <span class="badge bg-primary">Trailer (YouTube)</span>
+        {% else %}
+          <span class="badge bg-success">Film (Bunny)</span>
+        {% endif %}
+      </td>
+      <td><code class="text-warning small">{{ e.lien }}</code></td>
+      <td>{{ e.duration or "—" }}</td>
+      <td>{{ e.ordre }}</td>
+      <td>
+        <a href="/admin/episodes/{{ e.id }}/edit" class="btn btn-sm btn-outline-warning">
+          <i class="bi bi-pencil"></i>
+        </a>
+        <form method="post" action="/admin/episodes/{{ e.id }}/delete" class="d-inline"
+              onsubmit="return confirm('Supprimer cette vidéo ?')">
+          <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7" class="text-center text-muted py-4">
+      Aucune vidéo — ajoutez un trailer et les vidéos du film
+    </td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

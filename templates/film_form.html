@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ "Modifier" if film else "Nouveau" }} film{% endblock %}
+{% block content %}
+
+<h2 class="mb-4">
+  {{ "Modifier" if film else "Ajouter" }} un film
+</h2>
+
+<form method="post"
+      action="{{ '/admin/films/' + film.id|string + '/edit' if film else '/admin/films/new' }}"
+      class="row g-3">
+
+  <div class="col-md-8">
+    <label class="form-label">Titre *</label>
+    <input type="text" name="titre" class="form-control" required
+           value="{{ film.titre if film else '' }}">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Âge minimum</label>
+    <input type="number" name="age_min" class="form-control" min="0"
+           value="{{ film.age_min if film else 0 }}">
+  </div>
+
+  <div class="col-md-8">
+    <label class="form-label">URL de l'image cover *</label>
+    <input type="url" name="image_cover" class="form-control" required
+           placeholder="https://..."
+           value="{{ film.image_cover if film else '' }}">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Année</label>
+    <input type="number" name="annee" class="form-control" min="1900" max="2100"
+           value="{{ film.annee if film and film.annee else '' }}">
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">Description</label>
+    <textarea name="description" class="form-control" rows="4">{{ film.description if film else '' }}</textarea>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label d-block">Genres</label>
+    <div class="d-flex flex-wrap gap-3">
+      {% for g in genres %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="genres"
+               value="{{ g.id }}" id="g{{ g.id }}"
+               {% if film and g in film.genres %}checked{% endif %}>
+        <label class="form-check-label" for="g{{ g.id }}">{{ g.nom }}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <a href="/admin/genres" class="small text-warning">+ Gérer les genres</a>
+  </div>
+
+  <div class="col-12">
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" name="status" id="status"
+             {% if (film and film.status) or not film %}checked{% endif %}>
+      <label class="form-check-label" for="status">Film disponible au public</label>
+    </div>
+  </div>
+
+  <div class="col-12 mt-4">
+    <button class="btn btn-warning">
+      <i class="bi bi-check-circle"></i> Enregistrer
+    </button>
+    <a href="/admin/dashboard" class="btn btn-outline-light">Annuler</a>
+  </div>
+</form>
+
+{% endblock %}

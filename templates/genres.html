@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Genres{% endblock %}
+{% block content %}
+
+<h2 class="mb-4">Genres</h2>
+
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="card bg-secondary">
+      <div class="card-body">
+        <h5>Ajouter un genre</h5>
+        <form method="post" action="/admin/genres/new" class="d-flex gap-2">
+          <input type="text" name="nom" class="form-control" required placeholder="Action, Drame...">
+          <button class="btn btn-warning"><i class="bi bi-plus-lg"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card bg-secondary">
+      <div class="card-body">
+        <h5>Liste</h5>
+        <ul class="list-group">
+          {% for g in genres %}
+          <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-light">
+            {{ g.nom }}
+            <form method="post" action="/admin/genres/{{ g.id }}/delete"
+                  onsubmit="return confirm('Supprimer ce genre ?')">
+              <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </li>
+          {% else %}
+          <li class="list-group-item bg-dark text-light">Aucun genre</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

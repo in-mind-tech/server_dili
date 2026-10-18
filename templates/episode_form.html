@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ "Modifier" if episode else "Nouvelle" }} vidéo{% endblock %}
+{% block content %}
+
+<h2 class="mb-1">{{ "Modifier" if episode else "Ajouter" }} une vidéo</h2>
+<p class="text-muted">Film : <strong>{{ film.titre }}</strong></p>
+
+<form method="post"
+      action="{{ '/admin/episodes/' + episode.id|string + '/edit' if episode else '/admin/films/' + film.id|string + '/episodes/new' }}"
+      class="row g-3">
+
+  <div class="col-md-8">
+    <label class="form-label">Titre *</label>
+    <input type="text" name="titre" class="form-control" required
+           value="{{ episode.titre if episode else '' }}">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Type *</label>
+    <select name="type" class="form-select" required id="typeSelect"
+            onchange="toggleHint()">
+      <option value="trailer"
+        {% if episode and episode.type.value == 'trailer' %}selected{% endif %}>
+        Trailer (YouTube)
+      </option>
+      <option value="notrailer"
+        {% if episode and episode.type.value == 'notrailer' %}selected{% endif %}>
+        Film complet (Bunny)
+      </option>
+    </select>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">Lien *</label>
+    <input type="text" name="lien" class="form-control" required
+           value="{{ episode.lien if episode else '' }}">
+    <small class="text-muted" id="hint">
+      Trailer → URL YouTube. Film complet → Video ID Bunny.
+    </small>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Durée (ex: 12:45)</label>
+    <input type="text" name="duration" class="form-control"
+           value="{{ episode.duration if episode else '' }}">
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Ordre d'affichage</label>
+    <input type="number" name="ordre" class="form-control" min="0"
+           value="{{ episode.ordre if episode else 0 }}">
+  </div>
+
+  <div class="col-12 mt-4">
+    <button class="btn btn-warning">
+      <i class="bi bi-check-circle"></i> Enregistrer
+    </button>
+    <a href="/admin/films/{{ film.id }}" class="btn btn-outline-light">Annuler</a>
+  </div>
+</form>
+
+<script>
+function toggleHint() {
+  const t = document.getElementById('typeSelect').value;
+  document.getElementById('hint').textContent = t === 'trailer'
+    ? 'Trailer → collez l\'URL YouTube (ex: https://youtu.be/XXXX)'
+    : 'Film complet → collez l\'ID vidéo Bunny (ex: a1b2c3d4-...)';
+}
+toggleHint();
+</script>
+
+{% endblock %}

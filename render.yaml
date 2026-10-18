@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: dilitafi-backend
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: pip install -r requirements.txt && python init_db.py
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dilitafi-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: BUNNY_KEY
+        sync: false
+      - key: BUNNY_LIB
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+
+databases:
+  - name: dilitafi-db
+    plan: free
+    region: frankfurt
