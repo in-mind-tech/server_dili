@@ -27,7 +27,12 @@ def main():
             else:
                 print(f"ℹ️  Admin existant : {existing.email}")
 
-            for nom in ["Action", "Comédie", "Drame", "Horreur", "Science-Fiction", "Animation"]:
+            genres_defaut = [
+                "Action", "Animation", "Comédie", "Documentaire", 
+                "Drame", "Fantastique", "Formation", "Horreur", 
+                "Romance", "Suspense"
+            ]
+            for nom in genres_defaut:
                 if not db.query(Genre).filter(Genre.nom == nom).first():
                     db.add(Genre(nom=nom))
             db.commit()
