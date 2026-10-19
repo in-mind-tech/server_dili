@@ -1,37 +1,37 @@
 import hashlib
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException, Header
+from sqlalchemy.orm import Session
+from fastapi import Depends
+from ..database import get_db
+from ..models import User, Subscription
 from ..config import settings
-from ..deps import require_user # On garde l'import pour plus tard
 
 router = APIRouter(prefix="/media", tags=["media"])
 
 @router.get("/{video_id}/token")
-def bunny_token(video_id: str):
-    """
-    Génère un token Bunny signé.
-    NOTE: La sécurité (Depends(require_user)) est retirée temporairement 
-    pour permettre les tests de l'application mobile sans login.
-    """
-    try:
-        # On récupère la clé depuis les variables d'environnement (Render)
-        bunny_key = settings.BUNNY_KEY
-        if not bunny_key:
-            raise ValueError("BUNNY_KEY non configurée sur le serveur")
+def bunny_token(
+    video_id: str, 
+    x_device_id: str = Header(...), # L'application Flutter enverra cet en-tête
+    db: Session = Depends(get_db)
+):
+    # 1. Trouver l'utilisateur via son Device ID
+    user = db.query(User).filter(User.device_id == x_device_id).first()
+    
+    # Si l'appareil n'existe pas, on le crée automatiquement
+    if not user:
+        user = User(device_id=x_device_id, role="user")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-        # Calcul de l'expiration (10 minutes)
-        expires = int((datetime.utcnow() + timedelta(minutes=10)).timestamp())
-        
-        # Signature SHA256 (Key + VideoID + Expires)
-        raw_signature = f"{bunny_key}{video_id}{expires}"
-        token = hashlib.sha256(raw_signature.encode()).hexdigest()
-        
-        return {"token": token, "expires": expires}
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur génération token: {str(e)}")
-
-# ⚠️ POUR LA SUITE (Quand le login sera fait), le code ressemblera à ça :
-# @router.get("/{video_id}/token")
-# def bunny_token_protected(video_id: str, user=Depends(require_user)):
-#     # ... même code de génération ...
+    # 2. Vérifier si l'abonnement est actif
+    # (Pour l'instant on autorise tout le monde pour tester, on rajoutera la vérif plus tard)
+    
+    # 3. Générer le token Bunny
+    bunny_key = settings.BUNNY_KEY
+    expires = int((datetime.utcnow() + timedelta(minutes=10)).timestamp())
+    raw = f"{bunny_key}{video_id}{expires}"
+    token = hashlib.sha256(raw.encode()).hexdigest()
+    
+    return {"token": token, "expires": expires}
